@@ -1,6 +1,7 @@
 #ifndef RGBCTL_RGBCTL_H_INCLUDED
 #define RGBCTL_RGBCTL_H_INCLUDED
 
+#include "./texture.h"
 #include <inttypes.h>
 
 #ifdef __cplusplus
@@ -18,8 +19,12 @@ enum
     RGBCTL_ERR_NOT_IMPLEMENTED = 0x7fffffff
 };
 
+/* Errors...
+ */
 typedef int32_t rgbctl_errno;
 
+/* Modules...
+ */
 struct rgbctl_device_context;
 
 struct rgbctl_rgb_value

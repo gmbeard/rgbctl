@@ -1,24 +1,27 @@
 #include "rgbctl/texture.hpp"
+#include "rgbctl/vec.hpp"
 
-namespace rgbctl
-{
-Texture::Texture(std::span<RgbFloat const> texels, std::size_t width)
+using namespace rgbctl;
+
+rgbctl_texture::rgbctl_texture(std::span<RgbFloat const> texels,
+                               std::size_t width)
     : texels_ { texels.begin(), texels.end() }
     , width_ { width == one_row ? texels_.size() : width }
 { }
 
-auto Texture::width() const noexcept -> std::size_t
+auto rgbctl_texture::width() const noexcept -> std::size_t
 {
     return width_;
 }
 
-auto Texture::height() const noexcept -> std::size_t
+auto rgbctl_texture::height() const noexcept -> std::size_t
 {
     return texels_.size() / width_;
 }
 
-auto Texture::sample(Vec<float, 2> const& coord,
-                     Filtering required_filtering) const noexcept -> RgbFloat
+auto rgbctl_texture::sample(Vec<float, 2> const& coord,
+                            Filtering required_filtering) const noexcept
+    -> RgbFloat
 {
     switch (required_filtering) {
     case Filtering::Nearest:
@@ -67,8 +70,8 @@ constexpr auto constrain_clamp(Vec<float, 2> const& coord) noexcept
     };
 }
 
-auto Texture::sample(Vec<float, 2> const& pos, NearestFiltering) const noexcept
-    -> RgbFloat
+auto rgbctl_texture::sample(Vec<float, 2> const& pos,
+                            NearestFiltering) const noexcept -> RgbFloat
 {
     //
     using std::begin;
@@ -94,8 +97,8 @@ auto Texture::sample(Vec<float, 2> const& pos, NearestFiltering) const noexcept
     return *next(begin(texels_), texel_pos);
 }
 
-auto Texture::sample(Vec<float, 2> const& pos, LinearFiltering) const noexcept
-    -> RgbFloat
+auto rgbctl_texture::sample(Vec<float, 2> const& pos,
+                            LinearFiltering) const noexcept -> RgbFloat
 {
     //
     using std::begin;
@@ -141,4 +144,25 @@ auto Texture::sample(Vec<float, 2> const& pos, LinearFiltering) const noexcept
     return lerp(lerp(c0, c1, u_dist), lerp(c2, c3, u_dist), v_dist);
 }
 
-} // namespace rgbctl
+auto to_rgb_float_value(Vec<float, 3> const& vec) noexcept
+    -> rgbctl_rgb_float_value
+{
+    return rgbctl_rgb_float_value { .red = vec[0],
+                                    .green = vec[1],
+                                    .blue = vec[2] };
+}
+
+rgbctl_rgb_float_value rgb_sample_texture(rgbctl_texture const* texture,
+                                          float x,
+                                          float y,
+                                          int filtering)
+{
+    switch (filtering) {
+    case RGBCTL_SAMPLE_NEAREST:
+        return to_rgb_float_value(
+            texture->sample(to_vec<float>(x, y), texture_filtering_nearest));
+    default:
+        return to_rgb_float_value(
+            texture->sample(to_vec<float>(x, y), texture_filtering_linear));
+    }
+}
