@@ -40,8 +40,9 @@ auto detail::loop(std::uint32_t ms_per_loop,
 {
     sigints_received = 0;
     sigset_t blockset, emptyset, savedset;
-    sigemptyset(&blockset);
     sigemptyset(&emptyset);
+    sigemptyset(&blockset);
+    sigaddset(&blockset, SIGINT);
     sigprocmask(SIG_BLOCK, &blockset, &savedset);
 
     struct sigaction sa;
