@@ -17,3 +17,47 @@ A *Driver* never communicates directly with a device itself. It reads and writes
 
 ## Device Detection
 *rgbctl* uses the *udev* subsystem to enumerate the available devices.
+
+## Effect Chains
+
+### Sequence
+
+```
+[ Textures -> ] Shaders -> Targets
+```
+
+| Component     | Description                                                       |
+|------------   |----------------                                                   |
+| `Textures`    | Zero or more texture sources                                      |
+| `Shaders`     | One or more shader programs. Can be chained or blended together   |
+| `Targets`     | One or more targets. Output will be copied to all targets         |
+
+`Textures` can be optional. This implies that the shader(s) will generate all the colour information.
+
+### Effect Chain Format
+
+```
+Format:
+    EFFECT_CHAIN : [ <TEXTURE_COMPONENTS> ' ' ] <SHADER_COMPONENTS> ' ' <TARGET_COMPONENTS>
+
+    TEXTURE_COMPONENTS : <COMPONENT> [ ',' <COMPONENT> ]...
+
+    SHADER_COMPONENTS : <COMPONENT> [ ( '+' | ',' ) <COMPONENT> ]...
+
+    TARGET_COMPONENTS : <COMPONENT> [ ',' <COMPONENT> ]...
+
+    COMPONENT : [ ( 'builtin' | 'user' ) ':' ] <NAME> [ ';' <ARG_NAME> [ '=' ( <ARG_VALUE> | 'true' | 'false' ) ] ]...
+
+Notes:
+    The component type prefix (`builtin:` or `user:`) is optional and `builtin:` is implied if
+    not given. If a user-defined component is required then the `user:` prefix is necessary.
+
+    Shader components can be "chained" by specifying two or more components separated by `,`.
+    They can also be "blended" by specifying two or more components separated by `+`.
+
+    Component arguments are optional, as are argument values. If only `ARG_NAME` is provided
+    then the argument is equivalent to `ARG_NAME=true`.
+
+Example:
+    builtin:solid-color;r=255;g=0;b=0 rotate;dur=60+user:pulse-effect;interval=10 corsair-h100i,builtin:asus-x570;zone=0
+```

@@ -39,3 +39,7 @@ add_test(
     NAME dynamic_module_tests
     COMMAND dynamic_module_tests "${CMAKE_CURRENT_LIST_DIR}/dynamic_module.c"
 )
+
+add_executable(effect_graph_parsing_tests effect_graph_parsing_tests.cpp)
+add_test(NAME effect_graph_parsing_tests COMMAND effect_graph_parsing_tests)
+
